@@ -17,6 +17,7 @@ class MCAgent(agent.BaseAgent):
         self.sum = np.zeros((self.num_states,self.num_actions))
         self.count = np.zeros((self.num_states,self.num_actions))
         self.random = np.random.RandomState(agent_info['seed'])
+        self.use_initial_policy = True
 
     
     def agent_start(self, observation):
@@ -49,7 +50,10 @@ class MCAgent(agent.BaseAgent):
         Returns:
             The action the agent is taking.
         """
-        action = self.argmax(self.q[observation,:])
+        if self.use_initial_policy:
+            action = int(self.obs_to_state(observation)['player_sum']>19)
+        else:
+            action = self.argmax(self.q[observation,:])
 
         self.r.append(reward)
         self.sa.append((observation,action))
@@ -63,6 +67,8 @@ class MCAgent(agent.BaseAgent):
         Args:
             reward (float): the reward the agent received for entering the terminal state.
         """
+        self.use_initial_policy = False
+        
         self.r.append(reward)
         # print('reward: ', reward)
         # print('----')
@@ -99,7 +105,7 @@ class MCAgent(agent.BaseAgent):
     def argmax(self, values):
         return self.random.choice([action for action, value in enumerate(values) if value == np.max(values)])
 
-    # Turns linearized observation back to dict. Only for debugging.
+    # Turns linearized observation back to dict. There must be a better way.
     def obs_to_state(self, obs):
         state = {}
         state['usable_ace'] = int(np.floor(obs/100))

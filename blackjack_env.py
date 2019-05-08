@@ -27,10 +27,6 @@ class Environment(BaseEnvironment):
         self.random = np.random.RandomState(env_info['seed'])
         self.current_state = None
 
-        self.card_probs = np.ones(10)
-        self.card_probs[9] = 4 # Face cards count as 10
-        self.card_probs /= self.card_probs.sum()
-
     def env_start(self):
         """The first method called when the episode starts, called before the
         agent starts.
@@ -65,8 +61,6 @@ class Environment(BaseEnvironment):
             reward = 0
             terminal = False
             
-
-            # new_card = self.random.choice(range(1,11), p=self.card_probs)
             new_card = min(self.random.randint(1,14), 10)
             # print('new card:', new_card)
             
